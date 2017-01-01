@@ -34,21 +34,24 @@ public class Main extends JavaPlugin implements Listener {
 		getServer().getPluginManager().registerEvents(this, this);	
 		getPlayerTags();
 	}
+	//Defines the yml and the file for it
 	private FileConfiguration playerTags = null;
 	private File playerTagsFile = null;
-	
+	//Reload playerTags.yml
 	public void reloadPlayerTags() {
 	    if (playerTagsFile == null) {
 	    	playerTagsFile = new File(getDataFolder(), "playerTags.yml");
 	    }
 	    playerTags = YamlConfiguration.loadConfiguration(playerTagsFile);
 	}
+	//Retrieves playerTags.yml
 	public FileConfiguration getPlayerTags() {
 	    if (playerTags == null) {
 	    	reloadPlayerTags();
 	    }
 	    return playerTags;
 	}
+	//Saves playerTags.yml
 	public void savePlayerTags() {
 	    if (playerTags == null || playerTagsFile == null) {
 	        return;

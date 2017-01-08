@@ -9,11 +9,10 @@ import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Arrow;
-import org.bukkit.entity.Creeper;
+import org.bukkit.entity.EnderPearl;
+/*import org.bukkit.entity.Creeper;*/
 import org.bukkit.entity.FallingBlock;
-import org.bukkit.entity.FishHook;
 import org.bukkit.entity.LargeFireball;
-import org.bukkit.entity.LightningStrike;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.SmallFireball;
@@ -33,25 +32,23 @@ public class Main extends JavaPlugin implements Listener {
 	public void onEnable() {
 		getServer().getPluginManager().registerEvents(this, this);	
 		getPlayerTags();
+		this.getCommand("untag").setExecutor(new CommandExec(this));
 	}
-	//Defines the yml and the file for it
-	private FileConfiguration playerTags = null;
+	private  FileConfiguration playerTags = null;
 	private File playerTagsFile = null;
-	//Reload playerTags.yml
+	
 	public void reloadPlayerTags() {
 	    if (playerTagsFile == null) {
 	    	playerTagsFile = new File(getDataFolder(), "playerTags.yml");
 	    }
 	    playerTags = YamlConfiguration.loadConfiguration(playerTagsFile);
 	}
-	//Retrieves playerTags.yml
 	public FileConfiguration getPlayerTags() {
 	    if (playerTags == null) {
 	    	reloadPlayerTags();
 	    }
 	    return playerTags;
 	}
-	//Saves playerTags.yml
 	public void savePlayerTags() {
 	    if (playerTags == null || playerTagsFile == null) {
 	        return;
@@ -64,9 +61,8 @@ public class Main extends JavaPlugin implements Listener {
 	}
 	//Main onDamage event method that does all the tagging
 	@EventHandler
-	public void onDamage(EntityDamageByEntityEvent event) {                                      //Disables explosions tagging people
-		if((event.getDamager() instanceof LivingEntity) || (event.getDamager() instanceof Arrow) /*|| (event.getDamager() instanceof Creeper)*/ || (event.getDamager() instanceof FallingBlock) || (event.getDamager() instanceof FishHook) || (event.getDamager() instanceof LargeFireball) || (event.getDamager() instanceof SmallFireball) || (event.getDamager() instanceof LightningStrike) && event.getEntity() instanceof Player) {
-			//Nothing
+	public void onDamage(EntityDamageByEntityEvent event) {                                      
+		if((event.getDamager() instanceof LivingEntity) || (event.getDamager() instanceof Arrow) || (event.getDamager() instanceof FallingBlock)  || (event.getDamager() instanceof LargeFireball) || (event.getDamager() instanceof SmallFireball)  || (event.getDamager() instanceof EnderPearl) && event.getEntity() instanceof Player) {
 		}
 		else {
 			if(event.getEntity() instanceof Player) {
@@ -78,7 +74,11 @@ public class Main extends JavaPlugin implements Listener {
 				}
 				else {
 					if(getPlayerTags().getBoolean(ID + ".tagged") == false ) {
-						this.getPlayerTags().set(ID + ".tagged", true);
+						if(player.getWorld().getName() == "SGworld" || (player.getWorld().getName() == "pa")) {
+							getPlayerTags().set(ID + ".tagged", false);
+							savePlayerTags();
+						}
+						getPlayerTags().set(ID + ".tagged", true);
 						savePlayerTags();
 						player.sendMessage(ChatColor.YELLOW + "[CombatTag++] " + ChatColor.GOLD + "You have been tagged! Do not log off or you will be punished.");
 						getLogger().info("Debug Info X001");
@@ -158,6 +158,7 @@ public class Main extends JavaPlugin implements Listener {
 				player.setHealth(0);
 				getPlayerTags().set(ID + ".tagged", false);
 				savePlayerTags();
+				this.getServer().broadcastMessage(player.getName() + " combat logged!");
 
 		}
 	}
